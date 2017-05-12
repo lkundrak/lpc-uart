@@ -1,0 +1,6 @@
+db/
+incremental_db/
+output_files/
+.*.sw?
+lpc_tb
+test.vcd
