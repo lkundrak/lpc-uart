@@ -54,6 +54,7 @@ set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR "-1"
 set_global_assignment -name POWER_EXT_SUPPLY_VOLTAGE_TO_REGULATOR 3.3V
 set_global_assignment -name VERILOG_FILE lpc.v
 set_global_assignment -name VERILOG_FILE uart.v
+set_global_assignment -name VERILOG_FILE uart_rx.v
 set_global_assignment -name VERILOG_FILE lpc_dev.v
 set_global_assignment -name AUTO_RESTART_CONFIGURATION OFF
 set_global_assignment -name ENABLE_DEVICE_WIDE_RESET ON
@@ -77,4 +78,5 @@ set_location_assignment PIN_28 -to MID_BTN
 set_location_assignment PIN_57 -to LED2
 set_location_assignment PIN_58 -to LED1
 set_location_assignment PIN_98 -to UART_TX
+set_location_assignment PIN_99 -to UART_RX
 set_location_assignment PIN_100 -to LPC_FRAME

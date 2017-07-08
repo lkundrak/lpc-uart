@@ -13,6 +13,7 @@ module test;
 
 	wire led1;
 	wire led2;
+	reg uart_rx;
 	wire uart_tx;
 	wire lpc_rst;
 
@@ -20,7 +21,7 @@ module test;
 
 	lpc lpc0 (clk, rst_btn, mid_btn,
 		lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
-		uart_tx, led1, led2);
+		uart_tx, uart_rx, led1, led2);
 
 	task tick;
 	begin

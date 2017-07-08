@@ -1,4 +1,4 @@
-module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, busy);
+module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_valid, busy);
 	reg rd = 0;
 	reg lpc_data_out = 0;
 	reg [3:0] out_data;
@@ -11,6 +11,10 @@ module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, busy);
 
 	output [7:0] data;
 	output in;
+
+	input [7:0] rx_data;
+	input rx_data_valid;
+
 	input busy;
 
 	wire lpc_clk;
@@ -37,8 +41,20 @@ module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, busy);
 	parameter TAR1 = 12;
 	reg [3:0] state = START;
 
+	reg status_port;
+
+	reg [7:0] rxbuf;
+	reg data_ready = 0;
+
 	always @(posedge lpc_clk)
 	begin
+		if (data_ready == 0 && rx_data_valid == 1)
+		begin
+			//$display("RX DATA: [%x]", rx_data);
+			rxbuf <= rx_data;
+			data_ready <= 1;
+		end
+
 		//$display("LPCCLK: [%d] [%x] [%x]", state, lpc_frame, lpc_data);
 		if (lpc_frame == 0)
 		begin
@@ -81,12 +97,15 @@ module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, busy);
 				else
 					state <= START;
 			ADDR3:
-				if (lpc_data == 'hd && rd == 1)
+			begin
+				status_port <= lpc_data[0];
+				if (rd == 1)
 					state <= TAR0;
-				else if (lpc_data == 'h8 && rd == 0)
+				else if (rd == 0)
 					state <= WDATA0;
 				else
 					state <= START;
+			end
 			WDATA0:
 			begin
 				data[3:0] = lpc_data;
@@ -115,12 +134,22 @@ module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, busy);
 			end
 			RDATA0:
 			begin
-				out_data <= 0;
+				if (status_port)
+					out_data <= data_ready;
+				else
+					out_data <= rxbuf[3:0];
 				state <= RDATA1;
 			end
 			RDATA1:
 			begin
-				out_data <= (busy ? 0 : 2);
+				if (status_port)
+					out_data <= (busy ? 0 : 2);
+				else
+				begin
+					out_data <= rxbuf[7:4];
+					//rxbuf <= 8'hff;
+					data_ready <= 0;
+				end
 				state <= TAR1;
 			end
 			TAR1:
