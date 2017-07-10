@@ -67,6 +67,22 @@ module test;
 		uart_write (8'ha5);
 		repeat (1000) tick;
 		uart_write (8'hf0);
+
+		uart_write (8'hf1);
+		repeat (10) tick;
+		uart_write (8'hf2);
+		repeat (60) tick;
+		uart_write (8'hf3);
+		repeat (286) tick;
+		uart_write (8'hf4);
+		repeat (143) tick;
+		uart_write (8'hf5);
+		repeat (5) tick;
+		uart_write (8'hf6);
+		uart_write (8'hf7);
+		uart_write (8'hf8);
+		uart_write (8'hf9);
+		uart_write (8'hfa);
 		repeat (10) tick;
 
 		$finish;

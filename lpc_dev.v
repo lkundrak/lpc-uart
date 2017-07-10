@@ -43,17 +43,22 @@ module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_dat
 
 	reg status_port;
 
-	reg [7:0] rxbuf;
-	reg data_ready = 0;
+	reg [7:0] rxbuf[3:0];
+	reg [1:0] rx_begin = 0;
+	reg [1:0] rx_end = 0;
+
+	always @(posedge rx_data_valid)
+	begin
+		$display("LPC RX: [%x]", rx_data);
+		rxbuf[rx_end] <= rx_data;
+		rx_end <= rx_end + 1;
+
+	end
 
 	always @(posedge lpc_clk)
 	begin
-		if (data_ready == 0 && rx_data_valid == 1)
-		begin
-			//$display("RX DATA: [%x]", rx_data);
-			rxbuf <= rx_data;
-			data_ready <= 1;
-		end
+//		$display("RXBUF: begin=%d end=%d [%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x]", rx_begin, rx_end,
+//			rxbuf[0], rxbuf[1], rxbuf[2], rxbuf[3], rxbuf[4], rxbuf[5], rxbuf[6], rxbuf[7]);
 
 		//$display("LPCCLK: [%d] [%x] [%x]", state, lpc_frame, lpc_data);
 		if (lpc_frame == 0)
@@ -135,21 +140,24 @@ module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_dat
 			RDATA0:
 			begin
 				if (status_port)
-					out_data <= data_ready;
+					out_data <= rx_begin != rx_end;
+				else if (rx_begin != rx_end)
+					out_data <= rxbuf[rx_begin][3:0];
 				else
-					out_data <= rxbuf[3:0];
+					out_data <= 4'h0;
 				state <= RDATA1;
 			end
 			RDATA1:
 			begin
 				if (status_port)
-					out_data <= (busy ? 0 : 2);
-				else
+					out_data <= (busy ? 0 : 6);
+				else if (rx_begin != rx_end)
 				begin
-					out_data <= rxbuf[7:4];
-					//rxbuf <= 8'hff;
-					data_ready <= 0;
+					out_data <= rxbuf[rx_begin][7:4];
+					rx_begin <= rx_begin + 1;
 				end
+				else
+					out_data <= 4'h0;
 				state <= TAR1;
 			end
 			TAR1:

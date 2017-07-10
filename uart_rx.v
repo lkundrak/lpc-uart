@@ -7,8 +7,6 @@ module uart_rx (clk, data, data_valid, rx);
 	reg [7:0] data = 8'h7a;
 	reg data_valid = 0;
 
-	reg [7:0] buffer;
-
 	// 286 * 115200 = 32947200 MHz
 	parameter DIVISOR = 286;
 	reg [8:0] divisor = 0;
