@@ -1,3 +1,11 @@
+/*
+ * A simple LPC UART device.
+ * Glues a transmitter part, a receiver part and a LPC bus interface.
+ *
+ * Copyright (C) 2017 Lubomir Rintel <lkundrak@v3.sk>
+ * Distributed under the terms of GPLv2 or (at your option) any later version.
+ */
+
 module device (
 	LPC_CLK,
 	LPC_RST,
@@ -28,6 +36,6 @@ module device (
 	wire tx_busy;
 
 	lpc lpc0 (LPC_CLK, LPC_RST, { LPC_D3, LPC_D2, LPC_D1, LPC_D0 }, LPC_FRAME, tx_data, tx_data_valid, rx_data, rx_data_valid, tx_busy);
-	uart_tx uart_tx0 (LPC_CLK, tx_data, tx_data_valid, UART_TX, busy);
+	uart_tx uart_tx0 (LPC_CLK, tx_data, tx_data_valid, UART_TX, tx_busy);
 	uart_rx uart_rx0 (LPC_CLK, rx_data, rx_data_valid, UART_RX);
 endmodule

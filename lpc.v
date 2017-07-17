@@ -1,4 +1,26 @@
-module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_valid, busy);
+/*
+ * LPC interface module.
+ *
+ * Hardwired to 0x03fx address range (see inline comments), implementing just
+ * the few bits in the status register and the data I/O.
+ *
+ * Sufficient for the Coreboot console and the SerialICE input.
+ *
+ * Copyright (C) 2017 Lubomir Rintel <lkundrak@v3.sk>
+ * Distributed under the terms of GPLv2 or (at your option) any later version.
+ */
+
+module lpc (
+	lpc_clk,
+	lpc_rst,
+	lpc_data,
+	lpc_frame,
+	tx_data,
+	tx_data_valid,
+	rx_data,
+	rx_data_valid,
+	tx_busy
+);
 	reg rd = 0;
 	reg lpc_data_out = 0;
 	reg [3:0] out_data;
@@ -9,22 +31,22 @@ module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_va
 	inout [3:0] lpc_data;
 	input lpc_frame;
 
-	output [7:0] data;
-	output in;
+	output [7:0] tx_data;
+	output tx_data_valid;
 
 	input [7:0] rx_data;
 	input rx_data_valid;
 
-	input busy;
+	input tx_busy;
 
 	wire lpc_clk;
 	wire lpc_rst;
-	wire busy;
+	wire tx_busy;
 	assign lpc_data = lpc_data_out ? out_data : 4'bZ;
 	wire lpc_frame;
 
-	reg [7:0] data;
-	reg in = 0;
+	reg [7:0] tx_data;
+	reg tx_data_valid = 0;
 
 	parameter START = 0;
 	parameter CTDIR = 1;
@@ -72,7 +94,7 @@ module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_va
 		begin
 			case (state)
 			START:
-				in <= 0;
+				tx_data_valid <= 0;
 			CTDIR:
 				if (lpc_data == 0)
 				begin
@@ -87,22 +109,30 @@ module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_va
 				else
 					state <= START;
 			ADDR0:
+				// 0x03fx
+				//   ^ the most significant address nibble
 				if (lpc_data == 0)
 					state <= ADDR1;
 				else
 					state <= START;
 			ADDR1:
+				// 0x03fx
+				//    ^ second address nibble
 				if (lpc_data == 'h3)
 					state <= ADDR2;
 				else
 					state <= START;
 			ADDR2:
+				// 0x03fx
+				//     ^ third address nibble
 				if (lpc_data == 'hf)
 					state <= ADDR3;
 				else
 					state <= START;
 			ADDR3:
 			begin
+				// 0x03fx
+				//      ^ we just use the last bit here
 				status_port <= lpc_data[0];
 				if (rd == 1)
 					state <= TAR0;
@@ -113,12 +143,12 @@ module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_va
 			end
 			WDATA0:
 			begin
-				data[3:0] = lpc_data;
+				tx_data[3:0] = lpc_data;
 				state <= WDATA1;
 			end
 			WDATA1:
 			begin
-				data[7:4] = lpc_data;
+				tx_data[7:4] = lpc_data;
 				state <= TAR0;
 			end
 			TAR0:
@@ -133,7 +163,7 @@ module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_va
 					state <= RDATA0;
 				else
 				begin
-					in <= 1;
+					tx_data_valid <= 1;
 					state <= TAR1;
 				end
 			end
@@ -150,7 +180,7 @@ module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_va
 			RDATA1:
 			begin
 				if (status_port)
-					out_data <= (busy ? 0 : 6);
+					out_data <= (tx_busy ? 0 : 6);
 				else if (rx_begin != rx_end)
 				begin
 					out_data <= rxbuf[rx_begin][7:4];

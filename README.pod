@@ -1,0 +1,38 @@
+=pod
+
+=head1 LPC UART device in Verilog
+
+This is a very minimal UART interface that talks via the LPC bus. Good enough
+to provide a Coreboot or SerialICE console on a laptop without a real UART.
+
+Proven on an Altera EPM240T100 evaluation board, occupying 83% of the CLPD chip:
+
+  Total logic elements: 199 / 240 (83 %)
+
+Perhaps could be improved by someone who is proficient with Verilog.
+Contributions welcome!
+
+=head2 Files
+
+=over
+
+=item device.v - The toplevel device
+
+Glues a transmitter part, a receiver part and a LPC bus interface.
+
+=item lpc.v - LPC interface module
+
+Hardwired to 0x03fx address range (see inline comments), implementing just
+the few bits in the status register and the data I/O.
+
+=item uart_rx.v - UART receiver
+
+Hardwired to 115200 8-N-1 with 33 MHz clock source (see inline comments).
+
+=item uart_tx.v - UART transmitter
+
+Hardwired to 115200 8-N-1 with 33 MHz clock source (see inline comments).
+
+=back
+
+=cut

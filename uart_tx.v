@@ -1,4 +1,18 @@
-module uart_tx (clk, data, data_valid, tx, busy);
+/*
+ * UART transmitter.
+ * Hardwired to 115200 8-N-1 with 33 MHz clock source (see inline comments).
+ *
+ * Copyright (C) 2017 Lubomir Rintel <lkundrak@v3.sk>
+ * Distributed under the terms of GPLv2 or (at your option) any later version.
+ */
+
+module uart_tx (
+	clk,
+	data,
+	data_valid,
+	tx,
+	busy
+);
 	input clk;
 	input [7:0] data;
 	input data_valid;

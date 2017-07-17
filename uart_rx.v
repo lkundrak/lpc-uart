@@ -1,4 +1,17 @@
-module uart_rx (clk, data, data_valid, rx);
+/*
+ * UART receiver.
+ * Hardwired to 115200 8-N-1 with 33 MHz clock source (see inline comments).
+ *
+ * Copyright (C) 2017 Lubomir Rintel <lkundrak@v3.sk>
+ * Distributed under the terms of GPLv2 or (at your option) any later version.
+ */
+
+module uart_rx (
+	clk,
+	data,
+	data_valid,
+	rx
+);
 	input clk;
 	output [7:0] data;
 	output data_valid;
