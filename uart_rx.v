@@ -10,6 +10,7 @@ module uart_rx (clk, data, data_valid, rx);
 	// 286 * 115200 = 32947200 MHz
 	parameter DIVISOR = 286;
 	reg [8:0] divisor = 0;
+	reg [8:0] counter;
 
 	parameter IDLE = 0;
 	parameter START = 1;
@@ -24,32 +25,35 @@ module uart_rx (clk, data, data_valid, rx);
 	parameter STOP = 10;
 	reg [3:0] state = IDLE;
 
+	reg bit;
+
 	always @(posedge clk)
 	begin
 		if (divisor == 0 && state == IDLE)
 		begin
 			data_valid <= 0;
 			if (rx == 0)
-			begin
-				divisor <= DIVISOR / 2;
 				state <= START;
-			end
 		end
-		else if (divisor == DIVISOR)
+		else if (divisor == DIVISOR - 1 && state != IDLE)
 		begin
+			if (counter > 143)
+				bit = 1;
+			else
+				bit = 0;
 			divisor <= 0;
 			case (state)
-			START: if (rx != 0)
+			START: if (bit != 0)
 				state = IDLE;
-			DATA0: data[0] <= rx;
-			DATA1: data[1] <= rx;
-			DATA2: data[2] <= rx;
-			DATA3: data[3] <= rx;
-			DATA4: data[4] <= rx;
-			DATA5: data[5] <= rx;
-			DATA6: data[6] <= rx;
-			DATA7: data[7] <= rx;
-			STOP: if (rx == 1)
+			DATA0: data[0] <= bit;
+			DATA1: data[1] <= bit;
+			DATA2: data[2] <= bit;
+			DATA3: data[3] <= bit;
+			DATA4: data[4] <= bit;
+			DATA5: data[5] <= bit;
+			DATA6: data[6] <= bit;
+			DATA7: data[7] <= bit;
+			STOP: if (bit == 1)
 				data_valid <= 1;
 			endcase
 			//$display("UARTCLK: [%d] (%d) {%d} <%x>:%d", state, divisor, rx, data, data_valid);
@@ -57,8 +61,12 @@ module uart_rx (clk, data, data_valid, rx);
 				state = state + 1;
 			else
 				state = IDLE;
+			counter <= 0;
 		end
 		else
+		begin
 			divisor <= divisor + 1;
+			counter <= counter + rx;
+		end
 	end
 endmodule
