@@ -8,7 +8,7 @@ all: do_all stats
 
 do_all: output_files/$(TOPLEVEL).pof
 
-db/$(TOPLEVEL).map.qmsg: $(TOPLEVEL).qpf $(TOPLEVEL).qsf $(SOURCES)
+db/$(TOPLEVEL).map.qmsg: $(TOPLEVEL).qsf $(SOURCES)
 	quartus_map --read_settings_files=on --write_settings_files=off $(TOPLEVEL) -c $(TOPLEVEL)
 
 db/$(TOPLEVEL).fit.qmsg: db/$(TOPLEVEL).map.qmsg
