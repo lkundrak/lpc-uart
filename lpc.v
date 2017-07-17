@@ -1,4 +1,4 @@
-module lpc_dev (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_valid, busy);
+module lpc (lpc_clk, lpc_rst, lpc_data, lpc_frame, data, in, rx_data, rx_data_valid, busy);
 	reg rd = 0;
 	reg lpc_data_out = 0;
 	reg [3:0] out_data;

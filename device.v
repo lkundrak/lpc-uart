@@ -27,7 +27,7 @@ module device (
 	wire rx_data_valid;
 	wire busy;
 
-	lpc_dev dev0 (LPC_CLK, LPC_RST, { LPC_D3, LPC_D2, LPC_D1, LPC_D0 }, LPC_FRAME, data, data_valid, rx_data, rx_data_valid, busy);
+	lpc lpc0 (LPC_CLK, LPC_RST, { LPC_D3, LPC_D2, LPC_D1, LPC_D0 }, LPC_FRAME, data, data_valid, rx_data, rx_data_valid, busy);
 	uart uart0 (LPC_CLK, data, data_valid, UART_TX, busy);
 	uart_rx uartrx0 (LPC_CLK, rx_data, rx_data_valid, UART_RX);
 endmodule
