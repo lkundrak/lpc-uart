@@ -1,8 +1,4 @@
 module test;
-	reg clk;
-	reg rst_btn = 1;
-	reg mid_btn = 0;
-
 	reg data_out = 1;
 	reg [3:0] out_data;
 	wire [3:0] lpc_data;
@@ -11,15 +7,12 @@ module test;
 	reg lpc_clk;
 	reg lpc_frame;
 
-	wire led1;
-	wire led2;
 	reg uart_rx = 1;
 	wire uart_tx;
 	wire lpc_rst;
 
-	lpc lpc0 (clk, rst_btn, mid_btn,
-		lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
-		uart_tx, uart_rx, led1, led2);
+	lpc lpc0 (lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
+		uart_tx, uart_rx);
 
 	task tick;
 	begin

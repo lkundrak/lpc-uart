@@ -1,8 +1,4 @@
 module test;
-	reg clk;
-	reg rst_btn = 1;
-	reg mid_btn = 0;
-
 	reg data_out = 1;
 	reg [3:0] out_data;
 	wire [3:0] lpc_data;
@@ -19,8 +15,7 @@ module test;
 
 	reg [7:0] read_data = 8'hff;
 
-	lpc lpc0 (clk, rst_btn, mid_btn,
-		lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
+	lpc lpc0 (lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
 		uart_tx, uart_rx, led1, led2);
 
 	task tick;

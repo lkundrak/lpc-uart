@@ -72,11 +72,6 @@ set_location_assignment PIN_3 -to LPC_D1
 set_location_assignment PIN_4 -to LPC_D0
 set_location_assignment PIN_5 -to LPC_RST
 set_location_assignment PIN_6 -to LPC_CLK
-set_location_assignment PIN_12 -to CLK
-set_location_assignment PIN_26 -to RST_BTN
-set_location_assignment PIN_28 -to MID_BTN
-set_location_assignment PIN_57 -to LED2
-set_location_assignment PIN_58 -to LED1
+set_location_assignment PIN_100 -to LPC_FRAME
 set_location_assignment PIN_98 -to UART_TX
 set_location_assignment PIN_99 -to UART_RX
-set_location_assignment PIN_100 -to LPC_FRAME
