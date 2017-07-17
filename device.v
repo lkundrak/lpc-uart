@@ -21,13 +21,13 @@ module device (
 	output UART_TX;
 	input UART_RX;
 
-	wire [7:0] data;
-	wire data_valid;
+	wire [7:0] tx_data;
+	wire tx_data_valid;
 	wire [7:0] rx_data;
 	wire rx_data_valid;
-	wire busy;
+	wire tx_busy;
 
-	lpc lpc0 (LPC_CLK, LPC_RST, { LPC_D3, LPC_D2, LPC_D1, LPC_D0 }, LPC_FRAME, data, data_valid, rx_data, rx_data_valid, busy);
-	uart uart0 (LPC_CLK, data, data_valid, UART_TX, busy);
-	uart_rx uartrx0 (LPC_CLK, rx_data, rx_data_valid, UART_RX);
+	lpc lpc0 (LPC_CLK, LPC_RST, { LPC_D3, LPC_D2, LPC_D1, LPC_D0 }, LPC_FRAME, tx_data, tx_data_valid, rx_data, rx_data_valid, tx_busy);
+	uart_tx uart_tx0 (LPC_CLK, tx_data, tx_data_valid, UART_TX, busy);
+	uart_rx uart_rx0 (LPC_CLK, rx_data, rx_data_valid, UART_RX);
 endmodule

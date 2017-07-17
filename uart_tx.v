@@ -1,4 +1,4 @@
-module uart (clk, data, data_valid, tx, busy);
+module uart_tx (clk, data, data_valid, tx, busy);
 	input clk;
 	input [7:0] data;
 	input data_valid;

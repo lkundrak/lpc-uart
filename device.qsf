@@ -53,7 +53,7 @@ set_global_assignment -name DEVICE_FILTER_SPEED_GRADE 5
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR "-1"
 set_global_assignment -name POWER_EXT_SUPPLY_VOLTAGE_TO_REGULATOR 3.3V
 set_global_assignment -name VERILOG_FILE device.v
-set_global_assignment -name VERILOG_FILE uart.v
+set_global_assignment -name VERILOG_FILE uart_tx.v
 set_global_assignment -name VERILOG_FILE uart_rx.v
 set_global_assignment -name VERILOG_FILE lpc.v
 set_global_assignment -name AUTO_RESTART_CONFIGURATION OFF
