@@ -1,4 +1,4 @@
-module lpc (
+module device (
 	LPC_CLK,
 	LPC_RST,
 	LPC_D0,
@@ -20,8 +20,6 @@ module lpc (
 
 	output UART_TX;
 	input UART_RX;
-
-
 
 	wire [7:0] data;
 	wire data_valid;

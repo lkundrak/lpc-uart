@@ -15,7 +15,7 @@ module test;
 
 	reg [7:0] read_data = 8'hff;
 
-	lpc lpc0 (lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
+	device device0 (lpc_clk, lpc_rst, lpc_data[0], lpc_data[1], lpc_data[2], lpc_data[3], lpc_frame,
 		uart_tx, uart_rx, led1, led2);
 
 	task tick;

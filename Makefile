@@ -1,27 +1,28 @@
-PROJECT=lpc
-PATH:=$(PATH):$(HOME)/intelFPGA_lite/16.1/quartus/bin/
+PROJECT_FILE=device.qsf
+SOURCES=$(shell awk '/^set_global_assignment -name VERILOG_FILE/ {print $$NF}' $(PROJECT_FILE))
+TOPLEVEL=$(shell awk '/^set_global_assignment -name TOP_LEVEL_ENTITY/ {print $$NF}' $(PROJECT_FILE))
 
-SOURCES=$(shell awk '/^set_global_assignment -name VERILOG_FILE/ {print $$NF}' $(PROJECT).qsf)
+PATH:=$(PATH):$(HOME)/intelFPGA_lite/16.1/quartus/bin/
 
 all: do_all stats
 
-do_all: output_files/$(PROJECT).pof
+do_all: output_files/$(TOPLEVEL).pof
 
-db/$(PROJECT).map.qmsg: $(PROJECT).qpf $(PROJECT).qsf $(SOURCES)
-	quartus_map --read_settings_files=on --write_settings_files=off $(PROJECT) -c $(PROJECT)
+db/$(TOPLEVEL).map.qmsg: $(TOPLEVEL).qpf $(TOPLEVEL).qsf $(SOURCES)
+	quartus_map --read_settings_files=on --write_settings_files=off $(TOPLEVEL) -c $(TOPLEVEL)
 
-db/$(PROJECT).fit.qmsg: db/$(PROJECT).map.qmsg
-	quartus_fit --read_settings_files=off --write_settings_files=off $(PROJECT) -c $(PROJECT)
+db/$(TOPLEVEL).fit.qmsg: db/$(TOPLEVEL).map.qmsg
+	quartus_fit --read_settings_files=off --write_settings_files=off $(TOPLEVEL) -c $(TOPLEVEL)
 
-db/$(PROJECT).asm.qmsg: db/$(PROJECT).fit.qmsg
-	quartus_asm --read_settings_files=off --write_settings_files=off $(PROJECT) -c $(PROJECT)
+db/$(TOPLEVEL).asm.qmsg: db/$(TOPLEVEL).fit.qmsg
+	quartus_asm --read_settings_files=off --write_settings_files=off $(TOPLEVEL) -c $(TOPLEVEL)
 
-output_files/$(PROJECT).pof: db/$(PROJECT).asm.qmsg
+output_files/$(TOPLEVEL).pof: db/$(TOPLEVEL).asm.qmsg
 
 program: do_program stats
 
-do_program: output_files/$(PROJECT).pof $(PROJECT).cdf
-	quartus_pgm -c USB-Blaster $(PROJECT).cdf
+do_program: output_files/$(TOPLEVEL).pof $(TOPLEVEL).cdf
+	quartus_pgm -c USB-Blaster $(TOPLEVEL).cdf
 
 lpc_tb: tb.v $(SOURCES)
 	iverilog -o $@ $^
@@ -32,8 +33,8 @@ lpc_tb2: tb2.v $(SOURCES)
 run: lpc_tb2
 	vvp -n $<
 
-stats: output_files/$(PROJECT).pof
-	@grep 'Total logic elements' output_files/lpc.fit.rpt
+stats: output_files/$(TOPLEVEL).pof
+	@grep 'Total logic elements' output_files/$(TOPLEVEL).fit.rpt
 
 clean:
 	rm -rf db output_files incremental_db
