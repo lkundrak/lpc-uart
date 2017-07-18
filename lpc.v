@@ -23,7 +23,7 @@ module lpc (
 );
 	reg rd = 0;
 	reg lpc_data_out = 0;
-	reg [3:0] out_data;
+	reg [3:0] out_data = 4'hf;
 
 	input lpc_clk;
 	input lpc_rst;
@@ -45,7 +45,7 @@ module lpc (
 	assign lpc_data = lpc_data_out ? out_data : 4'bZ;
 	wire lpc_frame;
 
-	reg [7:0] tx_data;
+	reg [7:0] tx_data = 0;
 	reg tx_data_valid = 0;
 
 	parameter START = 0;
@@ -63,22 +63,23 @@ module lpc (
 	parameter TAR1 = 12;
 	reg [3:0] state = START;
 
-	reg status_port;
+	reg status_port = 0;
 
 	reg [7:0] rxbuf[3:0];
 	reg [1:0] rx_begin = 0;
 	reg [1:0] rx_end = 0;
 
-	always @(posedge rx_data_valid)
-	begin
-		$display("LPC RX: [%x]", rx_data);
-		rxbuf[rx_end] <= rx_data;
-		rx_end <= rx_end + 1;
-
-	end
-
 	always @(posedge lpc_clk)
 	begin
+
+
+		if (rx_data_valid)
+		begin
+			$display("LPC RX: [%x]", rx_data);
+			rxbuf[rx_end] <= rx_data;
+			rx_end <= rx_end + 1;
+		end
+
 //		$display("RXBUF: begin=%d end=%d [%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x]", rx_begin, rx_end,
 //			rxbuf[0], rxbuf[1], rxbuf[2], rxbuf[3], rxbuf[4], rxbuf[5], rxbuf[6], rxbuf[7]);
 
@@ -143,17 +144,17 @@ module lpc (
 			end
 			WDATA0:
 			begin
-				tx_data[3:0] = lpc_data;
+				tx_data[3:0] <= lpc_data;
 				state <= WDATA1;
 			end
 			WDATA1:
 			begin
-				tx_data[7:4] = lpc_data;
+				tx_data[7:4] <= lpc_data;
 				state <= TAR0;
 			end
 			TAR0:
 			begin
-				lpc_data_out = 1;
+				lpc_data_out <= 1;
 				state <= SYNC;
 			end
 			SYNC:
@@ -192,7 +193,7 @@ module lpc (
 			end
 			TAR1:
 			begin
-				lpc_data_out = 0;
+				lpc_data_out <= 0;
 				state <= START;
 			end
 			endcase

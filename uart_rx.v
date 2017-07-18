@@ -40,7 +40,7 @@ module uart_rx (
 
 	reg bit;
 
-	always @(posedge clk)
+	always @(negedge clk)
 	begin
 		if (divisor == 0 && state == IDLE)
 		begin
@@ -78,6 +78,7 @@ module uart_rx (
 		end
 		else
 		begin
+			data_valid <= 0;
 			divisor <= divisor + 1;
 			counter <= counter + rx;
 		end
