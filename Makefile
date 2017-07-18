@@ -24,17 +24,16 @@ program: do_program stats
 do_program: output_files/$(TOPLEVEL).pof $(TOPLEVEL).cdf
 	quartus_pgm -c USB-Blaster $(TOPLEVEL).cdf
 
-lpc_tb: tb.v $(SOURCES)
+tb: tb.v $(SOURCES)
 	iverilog -o $@ $^
 
-lpc_tb2: tb2.v $(SOURCES)
-	iverilog -o $@ $^
-
-run: lpc_tb2
+test: tb
 	vvp -n $<
+
+test.vcd: test
 
 stats: output_files/$(TOPLEVEL).pof
 	@grep 'Total logic elements' output_files/$(TOPLEVEL).fit.rpt
 
 clean:
-	rm -rf db output_files incremental_db
+	rm -rf db output_files incremental_db test.vcd tb

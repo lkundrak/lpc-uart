@@ -174,7 +174,7 @@ module lpc (
 				else if (rx_begin != rx_end)
 					out_data <= rxbuf[rx_begin][3:0];
 				else
-					out_data <= 4'h0;
+					out_data <= 4'hf;
 				state <= RDATA1;
 			end
 			RDATA1:
@@ -187,7 +187,7 @@ module lpc (
 					rx_begin <= rx_begin + 1;
 				end
 				else
-					out_data <= 4'h0;
+					out_data <= 4'hf;
 				state <= TAR1;
 			end
 			TAR1:
