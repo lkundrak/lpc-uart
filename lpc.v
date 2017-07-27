@@ -133,12 +133,15 @@ module lpc (
 			ADDR3:
 			begin
 				// 0x03fx
-				//      ^ we just use the last bit here
-				status_port <= lpc_data[0];
-				if (rd == 1)
-					state <= TAR0;
-				else if (rd == 0)
-					state <= WDATA0;
+				//      ^ d || 8
+				if (lpc_data[3:0] == 4'hd || lpc_data[3:0] == 4'h8)
+				begin
+					status_port <= lpc_data[0];
+					if (rd == 1)
+						state <= TAR0;
+					else
+						state <= WDATA0;
+				end
 				else
 					state <= START;
 			end
