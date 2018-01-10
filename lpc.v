@@ -29,6 +29,7 @@ module lpc (
 	input lpc_rst;
 
 	inout [3:0] lpc_data;
+	wire [3:0] in_data;
 	input lpc_frame;
 
 	output [7:0] tx_data;
@@ -42,7 +43,48 @@ module lpc (
 	wire lpc_clk;
 	wire lpc_rst;
 	wire tx_busy;
-	assign lpc_data = lpc_data_out ? out_data : 4'bZ;
+
+`ifdef YOSYS
+	SB_IO #(
+		.PIN_TYPE(6'b 1010_01),
+		.PULLUP(1'b 0)
+	) databuf0 (
+		.PACKAGE_PIN(lpc_data[0]),
+		.OUTPUT_ENABLE(lpc_data_out),
+		.D_OUT_0(out_data[0]),
+		.D_IN_0(in_data[0])
+	);
+	SB_IO #(
+		.PIN_TYPE(6'b 1010_01),
+		.PULLUP(1'b 0)
+	) databuf1 (
+		.PACKAGE_PIN(lpc_data[1]),
+		.OUTPUT_ENABLE(lpc_data_out),
+		.D_OUT_0(out_data[1]),
+		.D_IN_0(in_data[1])
+	);
+	SB_IO #(
+		.PIN_TYPE(6'b 1010_01),
+		.PULLUP(1'b 0)
+	) databuf2 (
+		.PACKAGE_PIN(lpc_data[2]),
+		.OUTPUT_ENABLE(lpc_data_out),
+		.D_OUT_0(out_data[2]),
+		.D_IN_0(in_data[2])
+	);
+	SB_IO #(
+		.PIN_TYPE(6'b 1010_01),
+		.PULLUP(1'b 0)
+	) databuf3 (
+		.PACKAGE_PIN(lpc_data[3]),
+		.OUTPUT_ENABLE(lpc_data_out),
+		.D_OUT_0(out_data[3]),
+		.D_IN_0(in_data[3])
+	);
+`else
+	assign lpc_data = lpc_data_out ? out_data : 4'bZ, in_data = lpc_data;
+`endif
+
 	wire lpc_frame;
 
 	reg [7:0] tx_data = 0;
@@ -83,10 +125,10 @@ module lpc (
 //		$display("RXBUF: begin=%d end=%d [%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x]", rx_begin, rx_end,
 //			rxbuf[0], rxbuf[1], rxbuf[2], rxbuf[3], rxbuf[4], rxbuf[5], rxbuf[6], rxbuf[7]);
 
-		//$display("LPCCLK: [%d] [%x] [%x]", state, lpc_frame, lpc_data);
+		//$display("LPCCLK: [%d] [%x] [%x]", state, lpc_frame, in_data);
 		if (lpc_frame == 0)
 		begin
-			if (lpc_data == 0)
+			if (in_data == 0)
 				state <= CTDIR;
 			else
 				state <= START;
@@ -97,12 +139,12 @@ module lpc (
 			START:
 				tx_data_valid <= 0;
 			CTDIR:
-				if (lpc_data == 0)
+				if (in_data == 0)
 				begin
 					rd <= 1;
 					state <= ADDR0;
 				end
-				else if (lpc_data == 2)
+				else if (in_data == 2)
 				begin
 					rd <= 0;
 					state <= ADDR0;
@@ -112,21 +154,21 @@ module lpc (
 			ADDR0:
 				// 0x03fx
 				//   ^ the most significant address nibble
-				if (lpc_data == 0)
+				if (in_data == 0)
 					state <= ADDR1;
 				else
 					state <= START;
 			ADDR1:
 				// 0x03fx
 				//    ^ second address nibble
-				if (lpc_data == 'h3)
+				if (in_data == 'h3)
 					state <= ADDR2;
 				else
 					state <= START;
 			ADDR2:
 				// 0x03fx
 				//     ^ third address nibble
-				if (lpc_data == 'hf)
+				if (in_data == 'hf)
 					state <= ADDR3;
 				else
 					state <= START;
@@ -134,9 +176,9 @@ module lpc (
 			begin
 				// 0x03fx
 				//      ^ d || 8
-				if (lpc_data[3:0] == 4'hd || lpc_data[3:0] == 4'h8)
+				if (in_data[3:0] == 4'hd || in_data[3:0] == 4'h8)
 				begin
-					status_port <= lpc_data[0];
+					status_port <= in_data[0];
 					if (rd == 1)
 						state <= TAR0;
 					else
@@ -147,12 +189,12 @@ module lpc (
 			end
 			WDATA0:
 			begin
-				tx_data[3:0] <= lpc_data;
+				tx_data[3:0] <= in_data;
 				state <= WDATA1;
 			end
 			WDATA1:
 			begin
-				tx_data[7:4] <= lpc_data;
+				tx_data[7:4] <= in_data;
 				state <= TAR0;
 			end
 			TAR0:

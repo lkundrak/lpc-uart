@@ -5,3 +5,5 @@ output_files/
 lpc_tb
 lpc_tb2
 test.vcd
+*.asc
+*.blif
